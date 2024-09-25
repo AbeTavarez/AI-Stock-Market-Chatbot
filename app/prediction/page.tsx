@@ -1,7 +1,7 @@
 "use client";
 import { FormEvent, useState } from "react";
 import Button from "../ui/button";
-
+import { getPrediction } from "../actions/getPrediction";
 export default function Prediction() {
   const [symbol, setSymbol] = useState("");
   const [symbols, setSymbols] = useState<string[]>([]);
@@ -18,7 +18,7 @@ export default function Prediction() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    console.log(symbols);
+    getPrediction(symbols);
     
   };
 
