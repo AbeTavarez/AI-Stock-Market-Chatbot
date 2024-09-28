@@ -2,11 +2,15 @@
 import { FormEvent, useState } from "react";
 import Button from "../ui/button";
 import { getPrediction } from "../actions/getPrediction";
-export default function Prediction() {
+import { Prediction } from "../types";
+import PredictionItem from "../ui/prediction-item";
+
+export default function PredictionPage() {
   const [symbol, setSymbol] = useState("");
   const [symbols, setSymbols] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [predictons, setPredictions] = useState<Prediction[]>([]);
 
   const handleAddStockSymbol = (e: FormEvent) => {
     e.preventDefault();
@@ -16,10 +20,30 @@ export default function Prediction() {
     setSymbol("");
   };
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    getPrediction(symbols);
-    
+  const handleSubmit = async (e: FormEvent) => {
+    try {
+      e.preventDefault();
+      setLoading(true);
+      const { predictionData, message } = await getPrediction(symbols);
+
+      console.log(predictionData, message);
+
+      if (message) {
+        setError(message);
+        setSymbols([]);
+        setLoading(false);
+      }
+
+      if (predictionData) {
+        const parsedPrediction = JSON.parse(predictionData);
+        setPredictions(parsedPrediction);
+        setSymbols([]);
+        setLoading(false);
+        setError("");
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
@@ -76,6 +100,13 @@ export default function Prediction() {
 
         <>{error && <div className="text-red-600 text-center">{error}</div>}</>
       </form>
+
+      <>
+        {predictons &&
+          predictons.map((prediction) => (
+            <PredictionItem key={prediction.symbol} {...prediction} />
+          ))}
+      </>
     </main>
   );
 }
