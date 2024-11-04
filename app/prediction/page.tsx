@@ -1,9 +1,10 @@
 "use client";
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useRef, useEffect } from "react";
 import Button from "../ui/button";
 import { getPrediction } from "../actions/getPrediction";
 import { Prediction } from "../types";
 import PredictionItem from "../ui/prediction-item";
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
 
 export default function PredictionPage() {
   const [symbol, setSymbol] = useState("");
@@ -11,6 +12,11 @@ export default function PredictionPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [predictons, setPredictions] = useState<Prediction[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const handleAddStockSymbol = (e: FormEvent) => {
     e.preventDefault();
@@ -47,13 +53,15 @@ export default function PredictionPage() {
   };
 
   return (
-    <main className="h-screen p20">
-      <h1 className="text-4xl font-bold text-center">Stocks Prediction</h1>
+    <main className="h-full p-20">
+      <h1 className="text-4xl font-bold text-center mb-10">
+        Stocks Prediction
+      </h1>
 
       <div className="h-5">
         <div className="flex justify-center pt-2">
           {symbols.map((s) => (
-            <div key={s} className="mr-5 font-semibold">
+            <div key={s} className="mr-5 font-semibold text-2xl">
               {s}
             </div>
           ))}
@@ -65,6 +73,7 @@ export default function PredictionPage() {
         className="flex flex-col items-center p-5 mb-10"
       >
         <input
+          ref={inputRef}
           type="text"
           placeholder="Enter stock symbol (e.g. AAPL)"
           className="text-black p-1 rounded mb-2 w-[50%]"
@@ -95,7 +104,10 @@ export default function PredictionPage() {
         </Button>
 
         <Button className="bg-green-500 my-2 font-medium disabled:bg-transparent">
-          Get Prediction
+          <div className="flex justify-center">
+            {loading && <ArrowPathIcon className="size-6 mr-2 animate-spin" />}
+            Get Prediction
+          </div>
         </Button>
 
         <>{error && <div className="text-red-600 text-center">{error}</div>}</>

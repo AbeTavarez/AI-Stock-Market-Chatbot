@@ -5,7 +5,7 @@ export default function PredictionItem(props: Prediction) {
     props;
 
   return (
-    <section>
+    <section className="prediction-item">
       <h2>Stock Price Prediction</h2>
 
       <div>
