@@ -18,7 +18,7 @@ export default function SentimentAnalysis() {
       <h1>Sentiment Analysis</h1>
 
       <div>
-        {sentimentResult.length > 1 &&
+        {sentimentResult?.length > 1 &&
           sentimentResult.map((sentiment, i) => (
             <div key={i}>
               <h2>{sentiment.title}</h2>
