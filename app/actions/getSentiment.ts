@@ -83,7 +83,7 @@ export async function getSentiment(ticker: string) {
           messages: [{ role: "user", content: prompt }],
         });
 
-        const sentiment = completion.choices[0].message.content;
+        const sentiment = completion.choices[0].message.content || "neutral";
         // console.log(sentiment);
 
         return {

@@ -16,6 +16,7 @@ export type RedditPost = {
 export type ParsedPost = {
   title: string;
   content: string;
+  sentiment: string;
 };
 
 export type SentimentCount = {
