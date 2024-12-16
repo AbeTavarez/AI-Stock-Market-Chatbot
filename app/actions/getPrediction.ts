@@ -111,6 +111,7 @@ export async function getPrediction(symbols: string[]) {
     console.log(predictionData);
 
     return { predictionData };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     console.error(e);
     return { message: e.message };
