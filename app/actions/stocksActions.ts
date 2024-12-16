@@ -33,7 +33,7 @@ export async function fetchStock(symbol: string) {
 
     console.log("STOCKS DATA ::: ", data);
 
-    if (data.status !== "OK" || data.resultsCount === 0) {
+    if ( data.resultsCount === 0) {
       return Promise.reject(`Data not available for stock ${data.ticker}`);
     }
 
