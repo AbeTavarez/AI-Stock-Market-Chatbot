@@ -11,3 +11,23 @@ body {
 .link {
   @apply text-base md:text-2xl md:p-1  font-bold mx-2 hover:text-green-400
 }
+
+
+.prediction-item h1 {
+  @apply p-5 text-5xl text-gray-200 font-bold
+}
+
+.prediction-item h2 {
+  @apply p-5 text-4xl text-gray-200 font-bold
+  
+}
+
+.prediction-item h3 {
+  @apply p-5 text-3xl text-gray-200 font-bold
+  
+}
+
+.prediction-item p {
+  @apply p-5 text-3xl text-gray-200
+
+}
