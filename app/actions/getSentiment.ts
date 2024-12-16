@@ -9,30 +9,51 @@ import {
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+let cachedAccessToken: string | null = null;
+let tokenExpiryTime = 0;
+let accessToken: string | null = null;
+
 export async function getSentiment(ticker: string) {
   try {
-    // ==== Reddit Auth Token ===============
-    const auth = Buffer.from(
-      `${process.env.REDDIT_WEB_APP}:${process.env.REDDIT_SECRET}`,
-    ).toString("base64");
+    // gets the current date in milliseconds
+    const now = Date.now();
 
-    const redditRes = await fetch(
-      "https://www.reddit.com/api/v1/access_token",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: `Basic ${auth}`,
+    if (cachedAccessToken && now < tokenExpiryTime) {
+      console.log("Returning cached token");
+      accessToken = cachedAccessToken;
+    } else {
+      console.log(cachedAccessToken);
+      
+      // ==== Reddit Auth Token ===============
+      const auth = Buffer.from(
+        `${process.env.REDDIT_WEB_APP}:${process.env.REDDIT_SECRET}`,
+      ).toString("base64");
+
+      const redditRes = await fetch(
+        "https://www.reddit.com/api/v1/access_token",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Basic ${auth}`,
+          },
+          body: `grant_type=client_credentials&redirect_uri=${process.env.REDIRECT_URL}`,
         },
-        body: `grant_type=client_credentials&redirect_url=${process.env.REDIRECT_URL}`,
-      },
-    );
+      );
 
-    const tokenData = await redditRes.json();
-    //   console.log(tokenData);
+      if (!redditRes.ok) {
+        throw new Error("Failed to get a Reddit API Auth Token");
+      }
+      
+      const tokenData = await redditRes.json();
+      console.log(tokenData);
 
-    const accessToken = tokenData.access_token;
-    //   console.log(accessToken);
+      accessToken = tokenData.access_token;
+      tokenExpiryTime = now + tokenData.expires_in * 1000;
+      cachedAccessToken = tokenData.access_token;
+      //   console.log(accessToken);
+    }
+
 
     // ===== Fetch SubReddit Data =============
     const res = await fetch(
@@ -40,12 +61,15 @@ export async function getSentiment(ticker: string) {
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
+          "User-Agent": `web:${process.env.REDDIT_WEB_APP}:v0.1 (by abe_http)`
         },
       },
     );
 
+    // console.log(await res.clone().text());
+    
     const subRedditData = await res.json();
-    console.log(subRedditData.data);
+    // console.log(subRedditData.data);
 
     // ===== Prepare Data =====================
 
@@ -124,7 +148,7 @@ export async function getSentiment(ticker: string) {
 
     const mainSentiment = mainSentimentCompletion.choices[0].message.content;
 
-    console.log("MAIN SENTIMENT::: ", mainSentiment);
+    // console.log("MAIN SENTIMENT::: ", mainSentiment);
 
     if (!mainSentiment) {
       throw Error("Error generating main sentiment");
@@ -137,7 +161,6 @@ export async function getSentiment(ticker: string) {
     };
 
     return sentiment;
-
   } catch (e) {
     console.error(e);
   }

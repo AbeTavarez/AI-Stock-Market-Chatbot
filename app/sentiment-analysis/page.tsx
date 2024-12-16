@@ -25,6 +25,7 @@ export default function SentimentAnalysis() {
       }
 
       setSentimentResult(sentimentData);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       console.error(e.message);
       alert(e.message);
